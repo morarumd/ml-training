@@ -31,6 +31,7 @@ fit_history = model.fit(x_train, y_train, validation_data=(x_test, y_test),
 print('Test:', model.evaluate(x_test, y_test, verbose=0))
 print('Train:', model.evaluate(x_train, y_train, verbose=0))
 
+#ploting loss function
 plt.plot(fit_history.history['loss'], label='train_loss')
 plt.plot(fit_history.history['val_loss'], label='test_loss')
 plt.ylim((0,6))

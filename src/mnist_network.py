@@ -31,7 +31,7 @@ class Network:
     def __init__(self, layers):
         self.layers = layers
         for l in self.layers:
-            #glorot uniform
+            #glorot uniform to mirror TF, keras
             limit = math.sqrt(6 / (l['num_weights'] + l['num_cells']))
             l['weights'] = np.random.rand(l['num_cells'], l['num_weights'])
             l['weights'] = ((l['weights'] * 2) - 1) * limit
@@ -71,6 +71,7 @@ class Network:
             l['nabla_w'] = np.zeros(l['weights'].shape).astype(np.float32)
         [self.backprop(x, y) for x, y in batch]
         for l in self.layers:
+            #20 is a constant to get similar convergence rate as tensorflow
             l['weights'] -= (l['nabla_w'] * learning_rate * 20) / len(batch)
             l['biases'] -= (l['nabla_b'] * learning_rate * 20) / len(batch)
              
@@ -118,9 +119,12 @@ class Network:
         f = [(np.argmax(y_), log_loss(y_array(y), y_), y) for y_, y in f]
         f_acc = np.array([ abs(x[0] - x[2]) for x in f])
         f_loss = np.array([ x[1] for x in f])
+        #10 is a constant to get similar loss values as TF. 
+        #Most likely because we have 10 classes, one for each digit
         return {'loss':f_loss.mean() * 10, 'acc': np.where(f_acc <= 0, 1, 0).mean()} 
 
 if __name__ == '__main__':
+    #loading data
     digits = datasets.load_digits()
     X, y = digits.images, digits.target
     X, y = X.astype(np.float32), y.astype(np.float32)
@@ -137,6 +141,7 @@ if __name__ == '__main__':
                           test_data=list(zip(x_test, y_test)),
                           epochs=500, batch_size=32, learning_rate=.0001)
  
+    #ploting loss function
     plt.plot(fit_history['loss'], label='train_loss')
     plt.plot(fit_history['val_loss'], label='test_loss')
     plt.ylim((0,6))
